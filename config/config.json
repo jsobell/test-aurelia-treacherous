@@ -1,0 +1,16 @@
+{
+  "name": "Insight Manager Application",
+  "version": "0.3",
+  "api": {
+    "endpoint": "http://localhost/manager/api/"
+  },
+  "cdn": {
+    "endpoint": "http://localhost/cdn/"
+  },
+  "auth": {
+    "endpoint": "http://localhost/manager/api/auth/"
+  },
+  "server": {
+    "name": "Insight Manager Server LOCAL"
+  }
+}
