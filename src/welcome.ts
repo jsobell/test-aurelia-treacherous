@@ -1,4 +1,5 @@
-import {createGroup, createRuleset,ValidationGroup } from "treacherous"
+import {createGroup, createRuleset, ValidationGroup, ruleRegistry} from "treacherous"
+import {PromiseDelayedValidationRule} from "./promiseRule";
 //import {ValidationStrategy} from "treacherous-aurelia";
 export class Welcome {
 
@@ -9,42 +10,46 @@ export class Welcome {
 
   valgrp:ValidationGroup;
 
-  user = {};
-  
+  user = { first:'', last:'' };
+
   constructor() {
 
-    this.setValid();
+    var vd = new PromiseDelayedValidationRule();
+    ruleRegistry.registerRule(vd);
 
     var ruleset = createRuleset()
       .forProperty("first")
-      .addRule("required",{})      // The property is required
+      .addRule("required",null)      // The property is required
       .addRule("maxLength", 10)    // The property needs a length <= 10
       .addRule("minLength", 5)     // The property needs a length >= 5
+      .addRule("slowthing", 700)  // The rule will take 2 seconds to validate!
       .forProperty("last")
       .addRule("minLength", 5)     // The property needs a length <= 5
       .build();
 
     this.valgrp = createGroup(this.user, ruleset);
-    console.log(this.valgrp);
-    console.warn(this.user);
+
+    //this.setValid();
   }
 
   setValid() {
-    this.user = { first:'Alfred', last:'Einstein' };
+    this.setuser({ first:'Alfred', last:'Einstein' });
   }
-  
+
   setInvalid() {
-    this.user = { first:'Bob', last:'Hope' };
+    this.setuser({ first:'Bob', last:'Hope' });
   }
-  
-  //Getters can't be directly observed, so they must be dirty checked.
-  //However, if you tell Aurelia the dependencies, it no longer needs to dirty check the property.
-  //To optimize by declaring the properties that this getter is computed from, uncomment the line below
-  //as well as the corresponding import above.
-  //@computedFrom('firstName', 'lastName')
+
+  setuser(u) {
+    this.user = u;
+    this.valgrp.changeValidationTarget(this.user);
+    //Object.assign(this.user , u);
+  }
+
   get fullName(): string {
-    return '?';
-    //return `${this.user.first} ${this.user.last}`;
+    if (this.user)
+      return `${this.user.first} ${this.user.last}`;
+    return "";
   }
 
   submit() {
